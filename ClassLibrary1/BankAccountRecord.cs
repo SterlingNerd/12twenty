@@ -16,9 +16,9 @@ public class BankAccountRecord
 		// Protected so entityframework can create these things, but we cannot.
 	}
 
-	public void Withdraw(decimal amount)
+	public void Withdraw(RequestContext requestContext, WithdrawRequest request)
 	{
-		Balance -= amount;
+		Balance -= request.Amount;
 
 		// update audit logs etc.
 	}

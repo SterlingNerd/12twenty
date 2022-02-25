@@ -6,24 +6,29 @@ public class BankAccountProcessor
 {
 	private readonly BankDatabaseContext _dbContext;
 	private readonly BankAccountValidator _validator;
+	private readonly AuthorizationProcessor _authorizationProcessor;
 	private readonly ILogger<BankAccountProcessor> _logger;
 
-	public BankAccountProcessor(BankDatabaseContext dbContext, BankAccountValidator validator, ILogger<BankAccountProcessor> logger)
+	public BankAccountProcessor(BankDatabaseContext dbContext, BankAccountValidator validator,AuthorizationProcessor authorizationProcessor, ILogger<BankAccountProcessor> logger)
 	{
 		// Pretend these have interfaces. excluded for brevity.
 		_dbContext = dbContext;
 		_validator = validator;
+		_authorizationProcessor = authorizationProcessor;
 		_logger = logger;
 	}
 
-	public void Withdraw(int accountId, decimal amount)
+	public void Withdraw(RequestContext context, WithdrawRequest request)
 	{
-		BankAccountRecord account = _dbContext.Accounts.FirstOrDefault(x => x.Id == accountId) ?? throw new Exception("Account not found.");
-		_validator.ValidateWithdrawRequest(account, amount);
+		_authorizationProcessor.VerifyAuthorization(context, request);
 
-		account.Withdraw(amount);
+		BankAccountRecord account = _dbContext.Accounts.FirstOrDefault(x => x.Id == request.AccountId) ?? throw new Exception("Account not found.");
+		_validator.ValidateWithdrawRequest(account, request);
+
+		account.Withdraw(context, request);
 		_dbContext.SaveChanges();
-		_logger.LogInformation("Withdrew {0} on {1}", amount, DateTime.Now);
+
+		_logger.LogInformation("User {2} withdrew {0} on {1}", request.Amount, DateTime.Now, context.UserId);
 	}
 
 	public void AccumulateInterest(decimal baseRate)
