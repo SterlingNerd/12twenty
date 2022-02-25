@@ -1,15 +1,19 @@
 using System;
 
+using Microsoft.Extensions.Logging;
+
 public class BankAccountProcessor
 {
 	private readonly BankDatabaseContext _dbContext;
 	private readonly BankAccountValidator _validator;
+	private readonly ILogger<BankAccountProcessor> _logger;
 
-	public BankAccountProcessor(BankDatabaseContext dbContext, BankAccountValidator validator)
+	public BankAccountProcessor(BankDatabaseContext dbContext, BankAccountValidator validator, ILogger<BankAccountProcessor> logger)
 	{
 		// Pretend these have interfaces. excluded for brevity.
 		_dbContext = dbContext;
 		_validator = validator;
+		_logger = logger;
 	}
 
 	public void Withdraw(int accountId, decimal amount)
@@ -19,7 +23,7 @@ public class BankAccountProcessor
 
 		account.Withdraw(amount);
 		_dbContext.SaveChanges();
-		Log("Withdrew {0} on {1}", amount, DateTime.Now);
+		_logger.LogInformation("Withdrew {0} on {1}", amount, DateTime.Now);
 	}
 
 	public void AccumulateInterest(decimal baseRate)
@@ -38,17 +42,9 @@ public class BankAccountProcessor
 			}
 
 			account.Deposit(interest);
-			Log("Accumulated {0} interest on {1}", interest, DateTime.Now);
+			_logger.LogInformation("Accumulated {0} interest on {1}", interest, DateTime.Now);
 		}
 
 		_dbContext.SaveChanges();
-	}
-
-	void Log(string message, params object[] parameters)
-	{
-		FileStream fs = File.Open("auditlog.txt", FileMode.OpenOrCreate);
-
-		StreamWriter writer = new StreamWriter(fs);
-		writer.WriteLine(message, parameters);
 	}
 }
