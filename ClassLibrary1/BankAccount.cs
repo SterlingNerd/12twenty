@@ -14,13 +14,11 @@ Timebox: 25m-30m
 */
 public class BankAccount
 {
-    decimal _balance;
-	
-    public decimal Balnace { get; set; }
+    public decimal Balance { get; private set; }
 
     public void Withdraw(decimal amount)
     {
-        _balance -= amount;
+        Balance -= amount;
         Log("Withdrew {0} on {1}", amount, DateTime.Now);
     }
 
@@ -28,13 +26,13 @@ public class BankAccount
     {
         decimal interest;
 
-        if (_balance < 10000)
+        if (Balance < 10000)
         {
-            interest = _balance * baseRate;
+            interest = Balance * baseRate;
         }
         else
         {
-            interest = _balance * (baseRate + 0.01);
+            interest = Balance * (baseRate + 0.01m);
         }
 		
         Log("Accumulated {0} interest on {1}", interest, DateTime.Now);
@@ -42,7 +40,7 @@ public class BankAccount
 
     void Log(string message, params object[] parameters)
     {
-        FileStream fs = File.OpenAsync("auditlog.txt", FileMode.OpenOrCreate);
+        FileStream fs = File.Open("auditlog.txt", FileMode.OpenOrCreate);
 		
         StreamWriter writer = new StreamWriter(fs);
         writer.WriteLine(message, parameters);
