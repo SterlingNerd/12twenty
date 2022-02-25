@@ -28,7 +28,7 @@ public class BankAccountProcessor
 		account.Withdraw(context, request);
 		_dbContext.SaveChanges();
 
-		_logger.LogInformation("User {2} withdrew {0} on {1}", request.Amount, DateTime.Now, context.UserId);
+		_logger.LogInformation("User {2} withdrew {0} on {1}", request.Amount, DateTime.UtcNow, context.UserId);
 	}
 
 	public void AccumulateInterest(decimal baseRate)
@@ -47,7 +47,7 @@ public class BankAccountProcessor
 			}
 
 			account.Deposit(interest);
-			_logger.LogInformation("Accumulated {0} interest on {1}", interest, DateTime.Now);
+			_logger.LogInformation("Accumulated {0} interest on {1}", interest, DateTime.UtcNow);
 		}
 
 		_dbContext.SaveChanges();
